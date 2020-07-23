@@ -1,0 +1,33 @@
+{
+    "root": "/content/mwml-httynn-app",
+    "program": "text_classification/train.py",
+    "git": {
+        "remote": "https://github.com/saams4u/mwml-httynn-app.git",
+        "commit": "5412857b7aa86bf8b09ae186da0cf803c50722db"
+    },
+    "email": null,
+    "codePath": "text_classification/train.py",
+    "startedAt": "2020-07-22T23:47:50.877869",
+    "host": "4c4143ef28c6",
+    "username": "root",
+    "executable": "/usr/bin/python3",
+    "os": "Linux-4.19.104+-x86_64-with-Ubuntu-18.04-bionic",
+    "python": "3.6.9",
+    "gpu": "Tesla P100-PCIE-16GB",
+    "gpu_count": 1,
+    "cpu_count": 4,
+    "cuda": "10.1.243",
+    "args": [
+        "--data-url",
+        "https://raw.githubusercontent.com/saams4u/mwml-httynn-app/master/datasets/yelp_labelled.txt",
+        "--lower",
+        "--shuffle",
+        "--use-glove"
+    ],
+    "state": "finished",
+    "jobType": null,
+    "mode": "run",
+    "project": "mwml-httynn-app_v2",
+    "heartbeatAt": "2020-07-22T23:48:21.669466",
+    "exitcode": 0
+}

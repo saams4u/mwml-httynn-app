@@ -34,7 +34,7 @@ st.write("""[<img src="https://github.com/madewithml/images/blob/master/images/y
 st.write("Video lesson coming soon...")
 
 # Get best run
-project = 'mahjouri-saamahn/mwml-httynn-app'
+project = 'mahjouri-saamahn/mwml-httynn-app_v2'
 best_run = utils.get_best_run(project=project,
                               metric="test_loss", objective="minimize")
 
@@ -53,9 +53,13 @@ if page == 'Prediction':
 
     st.header("🚀 Try it out!")
 
-    # Input text
+    # Input text for sentiment analysis
+    # text = st.text_input(
+    #     "Enter text to classify", value="The Canadian government officials proposed the new federal law.")
+
+    # Input for text classification
     text = st.text_input(
-        "Enter text to classify", value="The Canadian government officials proposed the new federal law.")
+        "Enter text and analyze sentiment", value="The owners are super friendly and the staff")
 
     # Predict
     results = predict.predict(inputs=[{'text': text}], args=args, model=model,

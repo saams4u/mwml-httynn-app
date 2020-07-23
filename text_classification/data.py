@@ -25,16 +25,23 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 def load_data(url, data_size):
     """Load dataset from URL."""
-    df = pd.read_csv(url)
+
+    # \\ For CSV files
+    # df = pd.read_csv(url)
+
+    # For text files
+    df = pd.read_csv(url, sep="\t", header=None, names=['text', 'tag'])
+    df.dropna(inplace=True)
+
     df = df.sample(frac=1).reset_index(drop=True) # shuffle
 
     # Reduce dataset
-    # You should always overfit your models on a small
-    # dataset first so you can catch errors quickly.
+    # Always overfit your models on a small dataset first to catch errors quickly.
     df = df[:int(len(df)*data_size)]
 
-    X = df['title'].values
-    y = df['category'].values
+    X = df['text'].values
+    y = df['tag'].values
+
     return X, y
 
 
@@ -45,22 +52,22 @@ def preprocess_texts(texts, binary=True, lower=True, filters=r"[!\"'#$%&()*\+,-.
         if lower:
             text = text.lower()
 
-        # binary classification
-        if binary:
-        	text = re.match(r'\b\w{1,2}\b', text)
-
         # remove items text in () ex. (Reuters)
         # may want to refine to only remove if at end of text
         text = re.sub(r'\([^)]*\)', '', text)
-
-        # remove non-alphabetical letters
-        text = re.match('[^a-zA-Z]', text)
 
         # spacing and filters
         text = re.sub(r"([.,!?])", r" \1 ", text)
         text = re.sub(filters, r"", text)
         text = re.sub(' +', ' ', text)  # remove multiple spaces
         text = text.strip()
+
+        # remove non-alphabetical chars
+        # text = re.compile(r'[^a-zA-Z]')
+
+        # # binary classification
+        # if binary:
+        # 	text = re.compile(r'\b\w{1,2}\b')
 
         preprocessed_texts.append(text)
     return preprocessed_texts
@@ -179,9 +186,48 @@ def pad_sequences(sequences, max_seq_len=0):
     for i, sequence in enumerate(sequences):
         padded_sequences[i][:len(sequence)] = sequence
     return padded_sequences
+    
+
+class Model_LSTM_Dataset(torch.utils.data.Dataset):
+    def __init__(self, X, y):
+        self.X = X
+        self.y = y
+
+    def __len__(self):
+        return len(self.y)
+
+    def __str__(self):
+        return f"<Dataset(N={len(self)})>"
+
+    def __getitem__(self, index):
+        X = self.X[index]
+        y = self.y[index]
+        return X, y
+
+    def collate_fn(self, batch):
+        """Processing on a batch."""
+        # Get inputs
+        X = np.array(batch)[:, 0]
+        y = np.array(batch)[:, 1]
+
+        # Pad inputs
+        X = pad_sequences(sequences=X)
+
+        # Cast
+        X = torch.LongTensor(X.astype(np.int32))
+        y = torch.LongTensor(y.astype(np.int32))
+
+        return X, y
+
+    def create_dataloader(self, batch_size, shuffle=False, drop_last=False):
+        return torch.utils.data.DataLoader(
+            dataset=self,
+            batch_size=batch_size,
+            collate_fn=self.collate_fn,
+            shuffle=shuffle, drop_last=drop_last, pin_memory=True)
 
 
-class TextDataset(torch.utils.data.Dataset):
+class Text_CNN_Dataset(torch.utils.data.Dataset):
     def __init__(self, X, y, max_filter_size):
         self.X = X
         self.y = y

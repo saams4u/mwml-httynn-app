@@ -32,17 +32,17 @@ def get_run_components(run_dir):
         fp=os.path.join(run_dir, 'y_tokenizer.json'))
 
     # Load ModelLSTM model
-    model = models.ModelLSTM(
-    	embedding_dim=args.embedding_dim, vocab_size=len(X_tokenizer)+1, 
-    	hidden_dim=args.hidden_dim, stacked_layers=args.stacked_layers,
-    	dropout_p=args.dropout_p, num_classes=len(y_tokenizer.classes))
+    # model = models.ModelLSTM(
+    # 	embedding_dim=args.embedding_dim, vocab_size=len(X_tokenizer)+1, 
+    # 	hidden_dim=args.hidden_dim, stacked_layers=args.stacked_layers,
+    # 	dropout_p=args.dropout_p, num_classes=len(y_tokenizer.classes))
 
     # // Load TextCNN model
-    # model = models.TextCNN(
-    #     embedding_dim=args.embedding_dim, vocab_size=len(X_tokenizer)+1,
-    #     num_filters=args.num_filters, filter_sizes=args.filter_sizes,
-    #     hidden_dim=args.hidden_dim, dropout_p=args.dropout_p,
-    #     num_classes=len(y_tokenizer.classes))
+    model = models.TextCNN(
+        embedding_dim=args.embedding_dim, vocab_size=len(X_tokenizer)+1,
+        num_filters=args.num_filters, filter_sizes=args.filter_sizes,
+        hidden_dim=args.hidden_dim, dropout_p=args.dropout_p,
+        num_classes=len(y_tokenizer.classes))
 
     model.load_state_dict(torch.load(os.path.join(run_dir, 'model.pt')))
 
@@ -108,7 +108,7 @@ def predict_step(model, dataloader, filter_sizes, device):
             # y_prob = F.softmax(logits, dim=1)
 
             # For binary instances
-            y_prob = F.sigmoid(logits, dim=1)
+            y_prob = F.sigmoid(logits)
 
             # Save probabilities
             y_probs.extend(y_prob.cpu().numpy())
@@ -133,7 +133,7 @@ def predict(inputs, args, model, X_tokenizer, y_tokenizer):
     X = np.array(X_tokenizer.texts_to_sequences(preprocessed_texts))
     y_filler = np.array([0]*len(X))
 
-    dataset = data.TextDataset(
+    dataset = data.Text_CNN_Dataset(
         X=X, y=y_filler, max_filter_size=max(args.filter_sizes))
     dataloader = dataset.create_dataloader(
         batch_size=args.batch_size)
@@ -167,7 +167,7 @@ if __name__ == '__main__':
     inputs = [{'text': args.text}]
 
     # Get best run
-    best_run = utils.get_best_run(project="mahjouri-saamahn/mwml-httynn-app",
+    best_run = utils.get_best_run(project="mahjouri-saamahn/mwml-httynn-app_v2",
                                   metric="test_loss", objective="minimize")
 
     # Load best run (if needed)
@@ -182,3 +182,4 @@ if __name__ == '__main__':
                       X_tokenizer=X_tokenizer, y_tokenizer=y_tokenizer)
 
     config.logger.info(json.dumps(results, indent=4, sort_keys=False))
+    

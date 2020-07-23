@@ -1,0 +1,22 @@
+{
+  "overall": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "num_samples": 150.0
+  },
+  "class": {
+    "0.0": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "num_samples": 75.0
+    },
+    "1.0": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "num_samples": 75.0
+    }
+  }
+}

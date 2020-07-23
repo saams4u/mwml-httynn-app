@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "text_classification/predict.py", line 171, in <module>
+    metric="test_loss", objective="minimize")
+  File "./text_classification/utils.py", line 108, in get_best_run
+    metric_value = run.summary[metric]
+  File "/usr/local/lib/python3.6/dist-packages/wandb/summary.py", line 114, in __getitem__
+    return self._dict[k]
+KeyError: 'test_loss'
