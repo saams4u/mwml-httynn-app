@@ -43,6 +43,18 @@ def binary_acc(y_pred, y_test):
     return acc
 
 
+def multi_acc(y_pred, y_test):
+    y_pred_softmax = torch.log_softmax(y_pred, dim = 1)
+    _, y_pred_tags = torch.max(y_pred_softmax, dim = 1)
+
+    correct_pred = (y_pred_tags == y_test).float()
+    
+    acc = correct_pred.sum() / len(correct_pred)
+    cc = torch.round(acc) * 100
+
+    return acc
+
+
 def train_step(model, optimizer, dataloader, device):
     """Train step."""
     # Set model to train mode
@@ -369,18 +381,18 @@ if __name__ == '__main__':
 
     # Create datasets
     # For ModelLSTM architecture
-    # train_dataset = data.Model_LSTM_Dataset(X=X_train, y=y_train)
-    # val_dataset = data.Model_LSTM_Dataset(X=X_val, y=y_val)
-    # test_dataset = data.Model_LSTM_Dataset(X=X_test, y=y_test)
+    train_dataset = data.Model_LSTM_Dataset(X=X_train, y=y_train)
+    val_dataset = data.Model_LSTM_Dataset(X=X_val, y=y_val)
+    test_dataset = data.Model_LSTM_Dataset(X=X_test, y=y_test)
 
-    # // For TextCNN architecture
-    train_dataset = data.Text_CNN_Dataset(
-        X=X_train, y=y_train, max_filter_size=max(args.filter_sizes))
-    val_dataset = data.Text_CNN_Dataset(
-        X=X_val, y=y_val, max_filter_size=max(args.filter_sizes))
-    test_dataset = data.Text_CNN_Dataset(
-        X=X_test, y=y_test, max_filter_size=max(args.filter_sizes))
-    
+    # For TextCNN architecture
+    # train_dataset = data.Text_CNN_Dataset(
+    #     X=X_train, y=y_train, max_filter_size=max(args.filter_sizes))
+    # val_dataset = data.Text_CNN_Dataset(
+    #     X=X_val, y=y_val, max_filter_size=max(args.filter_sizes))
+    # test_dataset = data.Text_CNN_Dataset(
+    #     X=X_test, y=y_test, max_filter_size=max(args.filter_sizes))
+
     config.logger.info(
         "Data splits:\n"
         f"  Train dataset:{train_dataset.__str__()}\n"
@@ -431,16 +443,23 @@ if __name__ == '__main__':
     #     freeze_embeddings=args.freeze_embeddings)
 
        # // TextCNN Architecture
-    model = models.TextCNN(
-        embedding_dim=args.embedding_dim, 
-        vocab_size=vocab_size,
-        num_filters=args.num_filters, 
-        filter_sizes=args.filter_sizes,
-        hidden_dim=args.hidden_dim, 
-        dropout_p=args.dropout_p,
-        num_classes=len(y_tokenizer.classes),
-        pretrained_embeddings=embedding_matrix,
-        freeze_embeddings=args.freeze_embeddings)
+    # model = models.TextCNN(
+    #     embedding_dim=args.embedding_dim, 
+    #     vocab_size=vocab_size,
+    #     num_filters=args.num_filters, 
+    #     filter_sizes=args.filter_sizes,
+    #     hidden_dim=args.hidden_dim, 
+    #     dropout_p=args.dropout_p,
+    #     num_classes=len(y_tokenizer.classes),
+    #     pretrained_embeddings=embedding_matrix,
+    #     freeze_embeddings=args.freeze_embeddings)
+
+    # ModelCnnRnn Architecture
+    model = models.ModelCnnRnn(
+    	embedding_dim=args.embedding_dim,
+    	vocab_size=vocab_size,
+    	hidden_dim=arg.hidden_dim,
+    	num_classes=len(y_tokenizer.classes))
 
     model = model.to(device)
     wandb.watch(model)

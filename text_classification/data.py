@@ -27,10 +27,11 @@ def load_data(url, data_size):
     """Load dataset from URL."""
 
     # \\ For CSV files
-    # df = pd.read_csv(url)
+    df = pd.read_csv(url)
 
     # For text files
-    df = pd.read_csv(url, sep="\t", header=None, names=['text', 'tag'])
+    # df = pd.read_csv(url, sep="\t", header=None, names=['text', 'tag'])
+    df = df.rename(columns = {'category': 'tag'})
     df.dropna(inplace=True)
 
     df = df.sample(frac=1).reset_index(drop=True) # shuffle
@@ -60,14 +61,6 @@ def preprocess_texts(texts, binary=True, lower=True, filters=r"[!\"'#$%&()*\+,-.
         text = re.sub(r"([.,!?])", r" \1 ", text)
         text = re.sub(filters, r"", text)
         text = re.sub(' +', ' ', text)  # remove multiple spaces
-
-        # remove non-alphabetical chars
-        text = re.compile(r'[^a-zA-Z]')
-
-        # binary classification
-        if binary:
-        	text = re.compile(r'\b\w{1,2}\b')
-
         text = text.strip()
 
         # remove non-alphabetical chars
@@ -78,6 +71,7 @@ def preprocess_texts(texts, binary=True, lower=True, filters=r"[!\"'#$%&()*\+,-.
         # 	text = re.compile(r'\b\w{1,2}\b')
 
         preprocessed_texts.append(text)
+
     return preprocessed_texts
 
 

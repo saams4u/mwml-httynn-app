@@ -125,3 +125,59 @@ class TextCNN(nn.Module):
         logits = self.fc2(z)
 
         return conv_outputs, logits
+
+
+ class ModelCnnRnn(nn.Module):
+
+ 	def __init__(self, embedding_dim, vocab_size, hidden_dim, num_classes):
+ 		super(ModelCnnRnn, self).__init__()
+
+ 		self.word_embeddings = nn.Embedding(num_embeddings=vocab_size, 
+ 											embedding_dim=embedding_dim)
+ 		
+ 		self.conv1 = nn.Conv1d(in_channels=embedding_dim, out_channels=512, kernel_size=3, 
+ 							   stride=1, padding=1)
+
+ 		self.conv2 = nn.Conv1d(in_channels=512, out_channels=256, kernel_size=3, stride=1, 
+ 							   padding=1)
+
+ 		self.conv3 = nn.Conv1d(in_channels=256, out_channels=128, kernel_size=3, stride=1, 
+ 							   padding=1)
+
+ 		self.lstm = nn.LSTM(input_size=128, hidden_size=hidden_dim, batch_first=True)
+
+ 		self.batchnorm1 = nn.BatchNorm1d(num_features=512)
+ 		self.batchnorm2 = nn.BatchNorm1d(num_features=256)
+ 		self.batchnorm3 = nn.BatchNorm1d(num_features=128)
+
+ 		self.linear = nn.Linear(in_features=hidden_dim, out_features=num_classes)
+ 		self.relu = nn.ReLU()
+
+ 	def forward(self, x_batch):
+ 		padded_batch = pad_sequence(x_batch, batch_first=True)
+
+ 		embeds = self.word_embeddings(padded_batch)
+ 		embeds_t = embeds.transpose(1, 2)
+
+ 		cnn1 = self.relu(self.conv1(embeds_t))
+ 		cnn1 = self.batchnorm1(cnn1)
+
+ 		cnn2 = self.relu(self.conv2(cnn1))
+ 		cnn2 = self.batchnorm2(cnn2)
+
+ 		cnn3 = self.relu(self.conv3(cnn2))
+ 		cnn3 = self.batchnorm3(cnn3)
+
+ 		conv_outputs = []  # for interpretability
+ 		conv_outputs.append(cnn3)
+
+ 		rnn_input = cnn3.transpose(1, 2)
+
+ 		_, (lstm_h, _) = self.lstm(rnn_input)
+
+ 		linear_out = self.linear(lstm_h.squeeze())
+
+ 		return conv_outputs, linear_out
+
+
+

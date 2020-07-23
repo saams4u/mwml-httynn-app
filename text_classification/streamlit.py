@@ -59,7 +59,7 @@ if page == 'Prediction':
 
     # Input for text classification
     text = st.text_input(
-        "Enter text and analyze sentiment", value="The owners are super friendly and the staff")
+        "Enter text to classify", value="The Canadian government officials proposed the new federal law.")
 
     # Predict
     results = predict.predict(inputs=[{'text': text}], args=args, model=model,
