@@ -70,6 +70,13 @@ def preprocess_texts(texts, binary=True, lower=True, filters=r"[!\"'#$%&()*\+,-.
 
         text = text.strip()
 
+        # remove non-alphabetical chars
+        # text = re.compile(r'[^a-zA-Z]')
+
+        # # binary classification
+        # if binary:
+        # 	text = re.compile(r'\b\w{1,2}\b')
+
         preprocessed_texts.append(text)
     return preprocessed_texts
 
@@ -187,6 +194,45 @@ def pad_sequences(sequences, max_seq_len=0):
     for i, sequence in enumerate(sequences):
         padded_sequences[i][:len(sequence)] = sequence
     return padded_sequences
+    
+
+class Model_LSTM_Dataset(torch.utils.data.Dataset):
+    def __init__(self, X, y):
+        self.X = X
+        self.y = y
+
+    def __len__(self):
+        return len(self.y)
+
+    def __str__(self):
+        return f"<Dataset(N={len(self)})>"
+
+    def __getitem__(self, index):
+        X = self.X[index]
+        y = self.y[index]
+        return X, y
+
+    def collate_fn(self, batch):
+        """Processing on a batch."""
+        # Get inputs
+        X = np.array(batch)[:, 0]
+        y = np.array(batch)[:, 1]
+
+        # Pad inputs
+        X = pad_sequences(sequences=X)
+
+        # Cast
+        X = torch.LongTensor(X.astype(np.int32))
+        y = torch.LongTensor(y.astype(np.int32))
+
+        return X, y
+
+    def create_dataloader(self, batch_size, shuffle=False, drop_last=False):
+        return torch.utils.data.DataLoader(
+            dataset=self,
+            batch_size=batch_size,
+            collate_fn=self.collate_fn,
+            shuffle=shuffle, drop_last=drop_last, pin_memory=True)
 
 
 class Model_LSTM_Dataset(torch.utils.data.Dataset):
