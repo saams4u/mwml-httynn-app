@@ -23,7 +23,7 @@ app = FastAPI(
 
 
 # Get best run
-best_run = utils.get_best_run(project="mahjouri-saamahn/mwml-httynn-app",
+best_run = utils.get_best_run(project="mahjouri-saamahn/mwml-httynn-app_v2",
                               metric="test_loss", objective="minimize")
 
 # Load best run (if needed)
@@ -50,7 +50,7 @@ async def _index():
 
 @app.get("/experiments")
 async def _experiments():
-    return RedirectResponse("https://app.wandb.ai/mahjouri-saamahn/mwml-httynn-app")
+    return RedirectResponse("https://app.wandb.ai/mahjouri-saamahn/mwml-httynn-app_v2")
 
 
 class PredictPayload(BaseModel):
